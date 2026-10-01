@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type {
+  AppConfig,
   Buyin,
   DealerShift,
   InsuranceLog,
@@ -9,8 +10,11 @@ import type {
   PlayerRecord,
   RakeMode,
   Session,
+  SessionBundle,
   SessionStats,
 } from './types'
+
+export type { SessionBundle }
 
 /* ------------------------------ Members ------------------------------ */
 
@@ -19,6 +23,19 @@ export async function listMembers(): Promise<Member[]> {
     .from('members')
     .select('*')
     .order('created_at', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function searchMembers(keyword: string): Promise<Member[]> {
+  const k = keyword.trim()
+  if (!k) return listMembers()
+  const { data, error } = await supabase
+    .from('members')
+    .select('*')
+    .ilike('name', `%${k}%`)
+    .order('created_at', { ascending: true })
+    .limit(20)
   if (error) throw error
   return data ?? []
 }
@@ -44,6 +61,16 @@ export async function listSessions(): Promise<Session[]> {
   return (data ?? []) as Session[]
 }
 
+export async function getSessionById(sessionId: string): Promise<Session | null> {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('id', sessionId)
+    .maybeSingle()
+  if (error) throw error
+  return (data as Session) ?? null
+}
+
 export async function getActiveSession(): Promise<Session | null> {
   const { data, error } = await supabase
     .from('sessions')
@@ -60,6 +87,10 @@ export async function createSession(input: {
   title: string
   rake_mode: RakeMode
   rake_rate: number
+  stakes?: string
+  currency?: string
+  shareholder?: string
+  notes?: string
 }): Promise<Session> {
   const { data, error } = await supabase
     .from('sessions')
@@ -68,6 +99,10 @@ export async function createSession(input: {
       rake_mode: input.rake_mode,
       rake_rate: input.rake_rate,
       status: 'active',
+      stakes: input.stakes || null,
+      currency: input.currency || 'CNY',
+      shareholder: input.shareholder || null,
+      notes: input.notes || null,
     })
     .select()
     .single()
@@ -95,8 +130,12 @@ export async function updateSessionBoxTotal(sessionId: string, boxTotal: number)
 
 /* --------------------------- Player records -------------------------- */
 
-export async function joinSession(sessionId: string, memberId: string): Promise<PlayerRecord> {
-  const { data, error } = await supabase
+export async function joinSession(
+  sessionId: string,
+  memberId: string,
+  initialBuyin?: number,
+): Promise<{ record: PlayerRecord; buyin: Buyin | null }> {
+  const { data: recData, error: recErr } = await supabase
     .from('player_records')
     .upsert(
       { session_id: sessionId, member_id: memberId },
@@ -104,8 +143,20 @@ export async function joinSession(sessionId: string, memberId: string): Promise<
     )
     .select()
     .single()
-  if (error) throw error
-  return data as PlayerRecord
+  if (recErr) throw recErr
+
+  let buyin: Buyin | null = null
+  if (initialBuyin && initialBuyin > 0) {
+    const { data: buyinData, error: buyErr } = await supabase
+      .from('buyins')
+      .insert({ player_record_id: recData.id, amount: initialBuyin })
+      .select()
+      .single()
+    if (buyErr) throw buyErr
+    buyin = buyinData as Buyin
+  }
+
+  return { record: recData as PlayerRecord, buyin }
 }
 
 export async function addBuyin(playerRecordId: string, amount: number): Promise<Buyin> {
@@ -198,8 +249,8 @@ export async function addDealerShift(input: {
       dealer_name: input.dealer_name,
       rake_chips: input.rake_chips,
       tip_chips: input.tip_chips,
-      start_time: input.start_time ?? new Date().toISOString(),
-      end_time: input.end_time ?? new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      start_time: input.start_time,
+      end_time: input.end_time,
     })
     .select()
     .single()
@@ -212,18 +263,29 @@ export async function deleteDealerShift(id: string): Promise<void> {
   if (error) throw error
 }
 
-/* ---------------------------- Aggregation ---------------------------- */
+/* ---------------------------- App Configs --------------------------- */
 
-export interface SessionBundle {
-  session: Session | null
-  sessions: Session[]
-  members: Member[]
-  players: PlayerCard[]
-  buyins: Buyin[]
-  insuranceLogs: InsuranceLog[]
-  dealerShifts: DealerShift[]
-  stats: SessionStats
+export async function getAppConfigs(): Promise<AppConfig[]> {
+  const { data, error } = await supabase
+    .from('app_configs')
+    .select('*')
+    .order('key')
+  if (error) throw error
+  return (data ?? []) as AppConfig[]
 }
+
+export async function upsertAppConfig(
+  key: string,
+  value: unknown,
+  label?: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('app_configs')
+    .upsert({ key, value: value as never, label: label || null }, { onConflict: 'key' })
+  if (error) throw error
+}
+
+/* --------------------------- Aggregation ---------------------------- */
 
 function emptyStats(): SessionStats {
   return {
@@ -331,10 +393,7 @@ export async function loadBundle(sessionId: string | null): Promise<SessionBundl
   const insuranceNet = insuranceIn - insuranceOut
   const unsettledCount = players.filter((p) => !p.record.is_settled).length
 
-  // 模式3(profit_percentage)：cashout_amount 是桌上原始退码筹码数，
-  // 抽水已内含于该数字中（玩家拿走的筹码里包含了应扣的水费），
-  // 因此不再重复减去 totalRake，避免双重扣水。
-  // 模式1/2：抽水独立于退码之外单独收取，需正常减去。
+  // 模式3：cashout_amount 是桌上原始退码筹码数，抽水已内含其中，不重复减
   const rakeInCashout = session.rake_mode === 'profit_percentage'
   const unaccountedDelta = rakeInCashout
     ? totalBuyins - totalCashout - insuranceNet

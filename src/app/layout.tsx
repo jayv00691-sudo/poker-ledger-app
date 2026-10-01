@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { PrivacyProvider } from '@/components/PrivacyContext'
+import { AppShell } from '@/components/AppShell'
 
 export const metadata: Metadata = {
   title: '扑克账本 · 线下现金局记账',
@@ -20,7 +22,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className="dark">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <PrivacyProvider>
+          <AppShell>{children}</AppShell>
+        </PrivacyProvider>
+      </body>
     </html>
   )
 }

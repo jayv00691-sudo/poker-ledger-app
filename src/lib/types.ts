@@ -18,6 +18,10 @@ export interface Session {
   status: SessionStatus
   start_time: string
   end_time: string | null
+  stakes: string | null
+  currency: string
+  shareholder: string | null
+  notes: string | null
 }
 
 export interface PlayerRecord {
@@ -26,6 +30,7 @@ export interface PlayerRecord {
   member_id: string
   cashout_amount: number
   is_settled: boolean
+  join_time: string
 }
 
 export interface Buyin {
@@ -54,6 +59,14 @@ export interface DealerShift {
   end_time: string | null
 }
 
+export interface AppConfig {
+  id: string
+  key: string
+  value: Record<string, unknown> | string | number
+  label: string | null
+  updated_at: string
+}
+
 /** 玩家卡片聚合数据 */
 export interface PlayerCard {
   record: PlayerRecord
@@ -74,8 +87,25 @@ export interface SessionStats {
   unaccountedDelta: number
 }
 
+export interface SessionBundle {
+  session: Session | null
+  sessions: Session[]
+  members: Member[]
+  players: PlayerCard[]
+  buyins: Buyin[]
+  insuranceLogs: InsuranceLog[]
+  dealerShifts: DealerShift[]
+  stats: SessionStats
+}
+
 export const RAKE_MODE_LABELS: Record<RakeMode, string> = {
   dealer_shift: '模式1 · 荷官按小时抽水',
   box_count: '模式2 · 水箱计数（结束时录入）',
   profit_percentage: '模式3 · 盈利百分比（离场自动扣）',
+}
+
+export const RAKE_MODE_SHORT: Record<RakeMode, string> = {
+  dealer_shift: '荷官抽水',
+  box_count: '水箱计数',
+  profit_percentage: '盈利百分比',
 }
