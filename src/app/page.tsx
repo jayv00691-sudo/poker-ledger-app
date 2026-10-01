@@ -105,13 +105,37 @@ export default function Page() {
     }
   }, [title, rakeMode, rakeRate, run, refresh])
 
+  const [endConfirmOpen, setEndConfirmOpen] = useState(false)
+  const [endBoxTotal, setEndBoxTotal] = useState('')
+  const [endingSession, setEndingSession] = useState(false)
+
   const handleEndSession = useCallback(
     async (boxTotal?: number) => {
       if (!session) return
+      // 未平账差 ≠ 0 时二次确认
+      const delta = bundle?.stats?.unaccountedDelta ?? 0
+      if (Math.abs(delta) >= 1) {
+        setEndBoxTotal(boxTotal !== undefined ? String(boxTotal) : '')
+        setEndConfirmOpen(true)
+        return
+      }
       await run(() => endSession(session.id, boxTotal))
     },
-    [session, run],
+    [session, run, bundle],
   )
+
+  const confirmEndSession = useCallback(async () => {
+    if (!session) return
+    setEndingSession(true)
+    try {
+      const box = endBoxTotal.trim() === '' ? undefined : Number(endBoxTotal)
+      await run(() => endSession(session.id, box))
+      setEndConfirmOpen(false)
+      setEndBoxTotal('')
+    } finally {
+      setEndingSession(false)
+    }
+  }, [session, run, endBoxTotal])
 
   /* ------------------------------- 玩家 ------------------------------- */
 
@@ -322,12 +346,23 @@ export default function Page() {
               </Badge>
             </div>
             <p className="mt-1 text-[11px] text-zinc-500">
-              总带入 = 总退码 + 总水费 + 保险池净额 + 未平差额
+              {session.rake_mode === 'profit_percentage'
+                ? '总带入 = 总退码（含水费）+ 保险池净额 + 未平差额'
+                : '总带入 = 总退码 + 总水费 + 保险池净额 + 未平差额'}
             </p>
             <dl className="mt-3 space-y-2 text-[12px]">
               <Row label="总带入（含未结清）" value={fmtMoney(stats.totalBuyins)} />
-              <Row label="总退码（已结清）" value={`− ${fmtMoney(stats.totalCashout)}`} />
-              <Row label={`总水费 · ${reconciliation.modeLabel}`} value={`− ${fmtMoney(stats.totalRake)}`} />
+              <Row
+                label={
+                  session.rake_mode === 'profit_percentage'
+                    ? '总退码（含水费，已结清）'
+                    : '总退码（已结清）'
+                }
+                value={`− ${fmtMoney(stats.totalCashout)}`}
+              />
+              {session.rake_mode !== 'profit_percentage' ? (
+                <Row label={`总水费 · ${reconciliation.modeLabel}`} value={`− ${fmtMoney(stats.totalRake)}`} />
+              ) : null}
               <Row label="保险池净额（IN − OUT）" value={`− ${fmtMoney(stats.insuranceNet)}`} />
               <div className="flex items-center justify-between border-t border-zinc-800 pt-2">
                 <dt className="font-medium text-zinc-300">未平账差额</dt>
@@ -339,6 +374,11 @@ export default function Page() {
                   {fmtSigned(stats.unaccountedDelta)}
                 </dd>
               </div>
+              {!reconciliation.balanced ? (
+                <p className="mt-1 text-[10px] text-zinc-600">
+                  差额≠0 时，通常代表存在未录入的玩家带入或退码
+                </p>
+              ) : null}
             </dl>
           </section>
         ) : null}
@@ -416,6 +456,40 @@ export default function Page() {
             </Button>
             <Button className="flex-1" onClick={handleCreateSession} disabled={busy}>
               {busy ? '创建中…' : '开始记分'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 结束场次 — 未平账差额二次确认 */}
+      <Modal open={endConfirmOpen} onClose={() => setEndConfirmOpen(false)} title="⚠️ 结束场次确认">
+        <div className="space-y-4">
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-300">
+            当前未平账差额为{' '}
+            <span className="font-bold">{fmtSigned(bundle?.stats?.unaccountedDelta ?? 0)}</span>，
+            通常代表存在未录入的玩家带入或退码。
+          </div>
+          <p className="text-sm text-zinc-400">
+            确定要结束场次吗？结束后将无法继续录入数据。
+          </p>
+          {session?.rake_mode === 'box_count' ? (
+            <Field label="水箱总筹码">
+              <input
+                type="number"
+                inputMode="decimal"
+                value={endBoxTotal}
+                onChange={(e) => setEndBoxTotal(e.target.value)}
+                placeholder="请输入水箱清点数"
+                className={inputClass}
+              />
+            </Field>
+          ) : null}
+          <div className="flex gap-2">
+            <Button variant="ghost" className="flex-1" onClick={() => setEndConfirmOpen(false)}>
+              返回检查
+            </Button>
+            <Button variant="danger" className="flex-1" onClick={confirmEndSession} disabled={endingSession}>
+              {endingSession ? '处理中…' : '确认结束'}
             </Button>
           </div>
         </div>

@@ -331,6 +331,15 @@ export async function loadBundle(sessionId: string | null): Promise<SessionBundl
   const insuranceNet = insuranceIn - insuranceOut
   const unsettledCount = players.filter((p) => !p.record.is_settled).length
 
+  // 模式3(profit_percentage)：cashout_amount 是桌上原始退码筹码数，
+  // 抽水已内含于该数字中（玩家拿走的筹码里包含了应扣的水费），
+  // 因此不再重复减去 totalRake，避免双重扣水。
+  // 模式1/2：抽水独立于退码之外单独收取，需正常减去。
+  const rakeInCashout = session.rake_mode === 'profit_percentage'
+  const unaccountedDelta = rakeInCashout
+    ? totalBuyins - totalCashout - insuranceNet
+    : totalBuyins - totalCashout - totalRake - insuranceNet
+
   const stats: SessionStats = {
     totalBuyins,
     totalCashout,
@@ -338,7 +347,7 @@ export async function loadBundle(sessionId: string | null): Promise<SessionBundl
     insuranceNet,
     unsettledCount,
     playerCount: players.length,
-    unaccountedDelta: totalBuyins - totalCashout - totalRake - insuranceNet,
+    unaccountedDelta,
   }
 
   return {

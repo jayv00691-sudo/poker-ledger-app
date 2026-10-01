@@ -33,6 +33,8 @@ export function SessionBanner({
     try {
       const box = boxTotal.trim() === '' ? undefined : Number(boxTotal)
       await onEndSession(box)
+      // 如果页面触发了未平账二次确认，onEndSession 会提前返回，
+      // 此时关闭本弹窗，由页面层弹窗接管
       setEndOpen(false)
       setBoxTotal('')
     } finally {
