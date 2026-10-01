@@ -44,7 +44,7 @@ export function TabBar() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-[max(env(safe-area-inset-bottom),12px)]">
-      <nav className="glass mx-auto flex w-full max-w-md items-center justify-between rounded-2xl px-2 py-2">
+      <nav className="glass-nav mx-auto flex w-full max-w-md items-center justify-between rounded-2xl px-2 py-2">
         {tabs.map((tab, i) => {
           if ('plus' in tab) {
             return (

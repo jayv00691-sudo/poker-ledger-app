@@ -93,6 +93,19 @@ input[type="number"] {
   box-shadow: var(--glass-shadow);
 }
 
+/* 液态玻璃 · 导航层级
+ * 浮在白色内容之上，必须有可辨识的边缘，否则白玻璃会与白卡片糊在一起 */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(203, 213, 225, 0.85); /* slate-300/85 —— 提供硬边界 */
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.10),
+    0 2px 6px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
 /* 内容区白卡 */
 .card {
   background: var(--surface);
