@@ -2,28 +2,55 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ================================================================
+ * Design Tokens — Dark Tech · Zinc + Emerald
+ * ================================================================ */
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
+  /* Base surfaces */
+  --bg-base: #09090b;          /* zinc-950 */
+  --bg-elevated: #18181b;      /* zinc-900 */
+  --bg-overlay: #27272a;       /* zinc-800 */
+  --border-subtle: #3f3f46;    /* zinc-700 */
+  --border-muted: #27272a;     /* zinc-800 */
+
+  /* Typography */
+  --text-primary: #f4f4f5;     /* zinc-100 */
+  --text-secondary: #a1a1aa;   /* zinc-400 */
+  --text-tertiary: #71717a;    /* zinc-500 */
+  --text-muted: #52525b;       /* zinc-600 */
+
+  /* Accents */
+  --accent-primary: #059669;   /* emerald-600 */
+  --accent-primary-hover: #34d399; /* emerald-400 */
+  --accent-warn: #d97706;      /* amber-600 */
+  --accent-warn-hover: #f59e0b; /* amber-500 */
+  --accent-danger: #dc2626;    /* red-600 */
+  --accent-positive: #10b981;   /* emerald-500 */
+
+  /* Radii */
+  --radius-sm: 0.375rem;       /* rounded-lg */
+  --radius-md: 0.625rem;       /* rounded-xl */
+  --radius-lg: 0.875rem;       /* rounded-2xl */
+  --radius-full: 9999px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-primary);
 }
 
-html,
-body {
-  background: var(--background);
-  color: var(--foreground);
+html, body {
+  background: var(--bg-base);
+  color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
+  font-family: "Inter var", "Inter", system-ui, -apple-system, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Hide number input spinners */
+/* Remove number input spinners */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -31,4 +58,20 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

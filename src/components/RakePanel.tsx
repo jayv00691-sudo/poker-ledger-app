@@ -130,7 +130,7 @@ export function RakePanel({
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <Badge tone="sky">第 {i + 1} 班</Badge>
+                      <Badge tone="neutral">第 {i + 1} 班</Badge>
                       <span className="truncate text-sm font-medium text-zinc-100">
                         {d.dealer_name}
                       </span>

@@ -232,7 +232,7 @@ export function PlayerList({
                     </Button>
                   ) : (
                     <Button
-                      variant="success"
+                      variant="primary"
                       className="flex-1"
                       onClick={() => {
                         setSettleTarget(p)
@@ -352,7 +352,7 @@ export function PlayerList({
               取消
             </Button>
             <Button
-              variant="success"
+              variant="primary"
               className="flex-1"
               onClick={submitSettle}
               disabled={working || cashout === ''}

@@ -1,7 +1,10 @@
-export function fmtMoney(n: number): string {
+/** 格式化金额；currency 传入时前置货币符号（如 "¥1,200"） */
+export function fmtMoney(n: number, currency?: string): string {
   const v = Number.isFinite(n) ? n : 0
   const sign = v < 0 ? '-' : ''
-  return `${sign}${Math.abs(v).toLocaleString('zh-CN', { maximumFractionDigits: 2 })}`
+  const num = Math.abs(v).toLocaleString('zh-CN', { maximumFractionDigits: 2 })
+  const prefix = currency ? `${currency} ` : ''
+  return `${sign}${prefix}${num}`
 }
 
 export function fmtSigned(n: number): string {
