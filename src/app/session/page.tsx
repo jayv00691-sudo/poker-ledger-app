@@ -20,7 +20,7 @@ export default function SessionRedirectPage() {
   }, [router])
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center gap-3 text-zinc-400">
+    <div className="flex min-h-[60vh] items-center justify-center gap-3 text-slate-500">
       <Spinner />
       <span className="text-sm">跳转中…</span>
     </div>

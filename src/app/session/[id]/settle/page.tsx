@@ -104,7 +104,7 @@ export default function SettlePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center gap-3 text-zinc-400">
+      <div className="flex min-h-[60vh] items-center justify-center gap-3 text-slate-500">
         <Spinner />
         <span className="text-sm">加载中…</span>
       </div>
@@ -114,8 +114,8 @@ export default function SettlePage() {
   if (!session) {
     return (
       <div className="mx-auto max-w-3xl px-3 py-8 text-center">
-        <p className="text-sm text-zinc-500">场次不存在</p>
-        <Link href="/" className="mt-2 inline-block text-sm text-emerald-400 hover:underline">返回看板</Link>
+        <p className="text-sm text-slate-500">场次不存在</p>
+        <Link href="/" className="mt-2 inline-block text-sm text-emerald-600 hover:underline">返回看板</Link>
       </div>
     )
   }
@@ -123,17 +123,17 @@ export default function SettlePage() {
   return (
     <div className="mx-auto max-w-3xl px-3 py-3 pb-24">
       {/* Breadcrumb */}
-      <Link href={`/session/${session.id}`} className="mb-3 inline-flex items-center gap-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300">
+      <Link href={`/session/${session.id}`} className="mb-3 inline-flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-slate-700">
         <ArrowLeft className="h-3.5 w-3.5" /> 返回牌桌
       </Link>
 
       {/* Title */}
       <div className="mb-4">
-        <h1 className="flex items-center gap-2 text-base font-bold text-zinc-100">
+        <h1 className="flex items-center gap-2 text-base font-bold text-slate-900">
           <Scale className="h-4 w-4 text-emerald-500" />
           局末结算与对账
         </h1>
-        <p className="mt-1 text-[11px] text-zinc-500">
+        <p className="mt-1 text-[11px] text-slate-500">
           {session.title} · {RAKE_MODE_LABELS[session.rake_mode as RakeMode]}
         </p>
       </div>
@@ -157,16 +157,16 @@ export default function SettlePage() {
             </Badge>
           }
         >
-          <p className="mb-3 text-[11px] leading-relaxed text-zinc-500">
+          <p className="mb-3 text-[11px] leading-relaxed text-slate-500">
             总带入 = 总退码 + 总水费（{recon.modeLabel}）+ 保险池净额 + 未平差额
           </p>
 
           {/* Equation visual */}
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <EquationCell label="总带入" value={mask(fmtMoney(stats.totalBuyins))} tone="text-zinc-100" />
-            <EquationCell label="总退码" value={mask(fmtMoney(stats.totalCashout))} tone="text-zinc-200" prefix="−" />
+            <EquationCell label="总带入" value={mask(fmtMoney(stats.totalBuyins))} tone="text-slate-900" />
+            <EquationCell label="总退码" value={mask(fmtMoney(stats.totalCashout))} tone="text-slate-700" prefix="−" />
             <EquationCell label={`总水费 · ${recon.modeLabel}`} value={mask(fmtMoney(stats.totalRake))} tone="text-amber-400" prefix="−" />
-            <EquationCell label="保险池净额" value={mask(fmtMoney(stats.insuranceNet))} tone="text-zinc-200" prefix="−" />
+            <EquationCell label="保险池净额" value={mask(fmtMoney(stats.insuranceNet))} tone="text-slate-700" prefix="−" />
           </div>
 
           {/* Delta hero */}
@@ -177,23 +177,23 @@ export default function SettlePage() {
           }`}>
             <div className="flex items-center gap-2.5">
               {recon.balanced ? (
-                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               ) : (
                 <AlertTriangle className="h-5 w-5 text-amber-400" />
               )}
               <div>
-                <div className="text-[11px] text-zinc-400">未平账差额</div>
-                <div className={`text-lg font-bold tabular-nums ${recon.balanced ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <div className="text-[11px] text-slate-500">未平账差额</div>
+                <div className={`text-lg font-bold tabular-nums ${recon.balanced ? 'text-emerald-600' : 'text-amber-400'}`}>
                   {mask(fmtSigned(stats.unaccountedDelta))}
                 </div>
               </div>
             </div>
-            {recon.balanced && <span className="text-xs font-medium text-emerald-400">筹码守恒 ✓</span>}
+            {recon.balanced && <span className="text-xs font-medium text-emerald-600">筹码守恒 ✓</span>}
           </div>
 
           {!recon.balanced && (
-            <p className="mt-2 flex items-start gap-1.5 text-[10px] leading-relaxed text-zinc-500">
-              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0 text-zinc-600" />
+            <p className="mt-2 flex items-start gap-1.5 text-[10px] leading-relaxed text-slate-500">
+              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
               差额 ≠ 0 时，通常代表存在未录入的玩家带入或退码
             </p>
           )}
@@ -213,7 +213,7 @@ export default function SettlePage() {
         }
       >
         {players.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-zinc-800 px-4 py-8 text-center text-sm text-zinc-500">
+          <p className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-500">
             暂无玩家
           </p>
         ) : (
@@ -288,9 +288,9 @@ export default function SettlePage() {
         </div>
       )}
       {session.status === 'ended' && (
-        <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-3 text-sm font-medium text-emerald-400">
+        <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-3 text-sm font-medium text-emerald-600">
           <CheckCircle2 className="h-4 w-4" /> 本局已结束
-          {session.end_time && <span className="text-[11px] text-zinc-500">{fmtTime(session.end_time)}</span>}
+          {session.end_time && <span className="text-[11px] text-slate-500">{fmtTime(session.end_time)}</span>}
         </div>
       )}
 
@@ -337,19 +337,19 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <div className="mb-3 rounded-2xl border border-zinc-800 bg-zinc-900/50">
+    <div className="mb-3 rounded-2xl border border-slate-200 bg-white">
       <button
         onClick={onToggle}
-        className="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-zinc-800/25"
+        className="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-slate-100/25"
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-zinc-200">
+        <span className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           {icon}
           {title}
           {badge}
         </span>
-        {open ? <ChevronUp className="h-4 w-4 text-zinc-500" /> : <ChevronDown className="h-4 w-4 text-zinc-500" />}
+        {open ? <ChevronUp className="h-4 w-4 text-slate-500" /> : <ChevronDown className="h-4 w-4 text-slate-500" />}
       </button>
-      {open && <div className="border-t border-zinc-800/70 px-4 py-3.5">{children}</div>}
+      {open && <div className="border-t border-slate-200 px-4 py-3.5">{children}</div>}
     </div>
   )
 }
@@ -359,10 +359,10 @@ function Section({
  * ================================================================ */
 function EquationCell({ label, value, prefix, tone }: { label: string; value: string; prefix?: string; tone?: string }) {
   return (
-    <div className="rounded-lg border border-zinc-800/70 bg-zinc-950/60 px-2.5 py-2">
-      <div className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">{label}</div>
-      <div className={`mt-0.5 truncate text-sm font-bold tabular-nums ${tone ?? 'text-zinc-200'}`}>
-        {prefix && <span className="mr-0.5 text-zinc-500">{prefix}</span>}{value}
+    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2">
+      <div className="text-[9px] font-medium uppercase tracking-wider text-slate-500">{label}</div>
+      <div className={`mt-0.5 truncate text-sm font-bold tabular-nums ${tone ?? 'text-slate-700'}`}>
+        {prefix && <span className="mr-0.5 text-slate-500">{prefix}</span>}{value}
       </div>
     </div>
   )
@@ -395,35 +395,35 @@ function PlayerRow({
 
   return (
     <div className={`rounded-xl border p-3 transition-all ${
-      settled ? 'border-zinc-800/60 bg-zinc-950/40' : 'border-amber-500/20 bg-amber-500/4'
+      settled ? 'border-slate-200 bg-slate-50' : 'border-amber-500/20 bg-amber-500/4'
     }`}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-sm font-semibold text-zinc-100">{p.member.name}</span>
+          <span className="truncate text-sm font-semibold text-slate-900">{p.member.name}</span>
           <Badge tone={settled ? 'neutral' : 'amber'}>{settled ? '已结清' : '未结清'}</Badge>
         </div>
         <div className="text-right">
           {settled ? (
             <>
               <div className={`text-base font-bold tabular-nums ${
-                net > 0 ? 'text-emerald-400' : net < 0 ? 'text-red-400' : 'text-zinc-300'
+                net > 0 ? 'text-emerald-600' : net < 0 ? 'text-red-500' : 'text-slate-700'
               }`}>
                 {mask(fmtSigned(net))}
               </div>
-              <div className="text-[9px] uppercase tracking-wider text-zinc-500">净盈亏</div>
+              <div className="text-[9px] uppercase tracking-wider text-slate-500">净盈亏</div>
             </>
           ) : (
-            <div className="text-base font-bold tabular-nums text-zinc-600">—</div>
+            <div className="text-base font-bold tabular-nums text-slate-400">—</div>
           )}
         </div>
       </div>
 
       {/* metrics strip */}
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] tabular-nums text-zinc-500">
-        <span>带入 <b className="font-semibold text-zinc-300">{mask(fmtMoney(p.totalBuyins, currency))}</b></span>
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] tabular-nums text-slate-500">
+        <span>带入 <b className="font-semibold text-slate-700">{mask(fmtMoney(p.totalBuyins, currency))}</b></span>
         {settled && (
           <>
-            <span>退码 <b className="font-semibold text-zinc-300">{mask(fmtMoney(p.cashoutAmount, currency))}</b></span>
+            <span>退码 <b className="font-semibold text-slate-700">{mask(fmtMoney(p.cashoutAmount, currency))}</b></span>
           </>
         )}
       </div>
@@ -433,7 +433,7 @@ function PlayerRow({
         !busy && (
           <button
             onClick={onUnsettle}
-            className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:bg-zinc-800/60 hover:text-zinc-300 active:scale-[0.97]"
+            className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:bg-white hover:text-slate-700 active:scale-[0.97]"
           >
             <RotateCcw className="h-3 w-3" /> 取消结清
           </button>
@@ -542,12 +542,12 @@ function InsuranceSection({
       }
     >
       <div className="mb-3 grid grid-cols-2 gap-2 text-center">
-        <div className="rounded-lg border border-zinc-800/70 bg-zinc-950/60 px-2 py-1.5">
-          <div className="text-[9px] uppercase tracking-wider text-zinc-500">入池</div>
-          <div className="text-sm font-bold tabular-nums text-emerald-400">+{mask(fmtMoney(totalIn, currency))}</div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5">
+          <div className="text-[9px] uppercase tracking-wider text-slate-500">入池</div>
+          <div className="text-sm font-bold tabular-nums text-emerald-600">+{mask(fmtMoney(totalIn, currency))}</div>
         </div>
-        <div className="rounded-lg border border-zinc-800/70 bg-zinc-950/60 px-2 py-1.5">
-          <div className="text-[9px] uppercase tracking-wider text-zinc-500">出池</div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5">
+          <div className="text-[9px] uppercase tracking-wider text-slate-500">出池</div>
           <div className="text-sm font-bold tabular-nums text-amber-400">−{mask(fmtMoney(totalOut, currency))}</div>
         </div>
       </div>
@@ -556,16 +556,16 @@ function InsuranceSection({
       {logs.length > 0 && (
         <div className="mb-3 max-h-48 space-y-1 overflow-y-auto">
           {logs.map((l) => (
-            <div key={l.id} className="flex items-center justify-between rounded-lg bg-zinc-950/40 px-2.5 py-1.5 text-[11px]">
+            <div key={l.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 {l.type === 'in'
                   ? <ShieldPlus className="h-3.5 w-3.5 text-emerald-500" />
                   : <ShieldMinus className="h-3.5 w-3.5 text-amber-500" />}
-                <span className="text-zinc-400">{fmtTime(l.timestamp)}</span>
-                {l.remark && <span className="truncate text-zinc-500">{l.remark}</span>}
+                <span className="text-slate-500">{fmtTime(l.timestamp)}</span>
+                {l.remark && <span className="truncate text-slate-500">{l.remark}</span>}
               </div>
               <div className="flex items-center gap-2">
-                <span className={`font-bold tabular-nums ${l.type === 'in' ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <span className={`font-bold tabular-nums ${l.type === 'in' ? 'text-emerald-600' : 'text-amber-400'}`}>
                   {l.type === 'in' ? '+' : '−'}{mask(fmtMoney(l.amount, currency))}
                 </span>
                 {!busy && (
@@ -574,7 +574,7 @@ function InsuranceSection({
                       await deleteInsuranceLog(l.id)
                       setLogs(await listInsuranceLogs(sessionId))
                     })}
-                    className="cursor-pointer text-zinc-600 transition-colors hover:text-red-400"
+                    className="cursor-pointer text-slate-400 transition-colors hover:text-red-500"
                     aria-label="删除"
                   >
                     <Trash2 className="h-3 w-3" />
@@ -588,17 +588,17 @@ function InsuranceSection({
 
       {/* add form */}
       <div className="grid grid-cols-[56px_1fr_1fr_auto] gap-1.5">
-        <div className="flex gap-0.5 rounded-lg border border-zinc-800 bg-zinc-950 p-0.5">
+        <div className="flex gap-0.5 rounded-lg border border-slate-200 bg-slate-100 p-0.5">
           <button
             onClick={() => setType('in')}
             className={`flex-1 cursor-pointer rounded-md px-1 text-[10px] font-bold transition-colors ${
-              type === 'in' ? 'bg-emerald-600 text-white' : 'text-zinc-500 hover:text-zinc-300'
+              type === 'in' ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:text-slate-700'
             }`}
           >入</button>
           <button
             onClick={() => setType('out')}
             className={`flex-1 cursor-pointer rounded-md px-1 text-[10px] font-bold transition-colors ${
-              type === 'out' ? 'bg-amber-600 text-white' : 'text-zinc-500 hover:text-zinc-300'
+              type === 'out' ? 'bg-amber-600 text-white' : 'text-slate-500 hover:text-slate-700'
             }`}
           >出</button>
         </div>
@@ -689,24 +689,24 @@ function DealerSection({
       {shifts.length > 0 ? (
         <div className="mb-3 space-y-1">
           {shifts.map((d) => (
-            <div key={d.id} className="flex items-center justify-between rounded-lg bg-zinc-950/40 px-2.5 py-1.5 text-[11px]">
+            <div key={d.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px]">
               <div className="flex items-center gap-2">
-                <Hourglass className="h-3.5 w-3.5 text-zinc-500" />
-                <span className="font-medium text-zinc-300">{d.dealer_name}</span>
-                <span className="text-zinc-600">
+                <Hourglass className="h-3.5 w-3.5 text-slate-500" />
+                <span className="font-medium text-slate-700">{d.dealer_name}</span>
+                <span className="text-slate-400">
                   {fmtTime(d.start_time)}{d.end_time ? ` – ${fmtTime(d.end_time)}` : ' – 进行中'}
                 </span>
               </div>
               <div className="flex items-center gap-2 tabular-nums">
-                <span className="text-zinc-400">水 {mask(fmtMoney(d.rake_chips, currency))}</span>
-                {d.tip_chips > 0 && <span className="text-zinc-500">小费 {mask(fmtMoney(d.tip_chips, currency))}</span>}
+                <span className="text-slate-500">水 {mask(fmtMoney(d.rake_chips, currency))}</span>
+                {d.tip_chips > 0 && <span className="text-slate-500">小费 {mask(fmtMoney(d.tip_chips, currency))}</span>}
                 {!busy && (
                   <button
                     onClick={() => run(async () => {
                       await deleteDealerShift(d.id)
                       setShifts(await listDealerShifts(sessionId))
                     })}
-                    className="cursor-pointer text-zinc-600 transition-colors hover:text-red-400"
+                    className="cursor-pointer text-slate-400 transition-colors hover:text-red-500"
                     aria-label="删除"
                   >
                     <Trash2 className="h-3 w-3" />
@@ -717,7 +717,7 @@ function DealerSection({
           ))}
         </div>
       ) : (
-        <p className="mb-3 text-[11px] text-zinc-500">暂无班次记录</p>
+        <p className="mb-3 text-[11px] text-slate-500">暂无班次记录</p>
       )}
 
       {/* add form */}
@@ -765,7 +765,7 @@ function BoxSection({
           : <Badge tone="neutral">未录入</Badge>
       }
     >
-      <p className="mb-3 text-[11px] leading-relaxed text-zinc-500">
+      <p className="mb-3 text-[11px] leading-relaxed text-slate-500">
         模式 2 下，对账总额取自水箱计数。场次结束时请输入整箱筹码数。
       </p>
       <div className="flex gap-2">

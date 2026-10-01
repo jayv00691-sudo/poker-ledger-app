@@ -1,56 +1,76 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* ================================================================
- * Design Tokens — Dark Tech · Zinc + Emerald
+ * Design Tokens — Light · Liquid Glass
+ * 底 #F6F8FB · 玻璃层 rgba(255,255,255,.65) · 主色 blue-600
+ * 说明：玻璃效果仅用于导航与浮层，内容区一律纯白卡片
  * ================================================================ */
 :root {
-  /* Base surfaces */
-  --bg-base: #09090b;          /* zinc-950 */
-  --bg-elevated: #18181b;      /* zinc-900 */
-  --bg-overlay: #27272a;       /* zinc-800 */
-  --border-subtle: #3f3f46;    /* zinc-700 */
-  --border-muted: #27272a;     /* zinc-800 */
+  /* 表面 */
+  --background: #F6F8FB;
+  --surface: #FFFFFF;
 
-  /* Typography */
-  --text-primary: #f4f4f5;     /* zinc-100 */
-  --text-secondary: #a1a1aa;   /* zinc-400 */
-  --text-tertiary: #71717a;    /* zinc-500 */
-  --text-muted: #52525b;       /* zinc-600 */
+  /* 文字 */
+  --foreground: #1F2937;        /* 主文字 slate-800 */
+  --muted-foreground: #6B7280;  /* 次文字 slate-500 */
 
-  /* Accents */
-  --accent-primary: #059669;   /* emerald-600 */
-  --accent-primary-hover: #34d399; /* emerald-400 */
-  --accent-warn: #d97706;      /* amber-600 */
-  --accent-warn-hover: #f59e0b; /* amber-500 */
-  --accent-danger: #dc2626;    /* red-600 */
-  --accent-positive: #10b981;   /* emerald-500 */
+  /* 描边与主色 */
+  --border: #E5EAF2;
+  --accent: #3B82F6;            /* blue-500 */
 
-  /* Radii */
-  --radius-sm: 0.375rem;       /* rounded-lg */
-  --radius-md: 0.625rem;       /* rounded-xl */
-  --radius-lg: 0.875rem;       /* rounded-2xl */
+  /* 语义色 */
+  --green: #059669;             /* emerald-600 */
+  --red: #DC2626;
+  --amber: #D97706;
+
+  /* 玻璃 */
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
+
+  /* 圆角尺度 */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.125rem;
   --radius-full: 9999px;
 }
 
 @theme inline {
-  --color-background: var(--bg-base);
-  --color-foreground: var(--text-primary);
-}
-
-html, body {
-  background: var(--bg-base);
-  color: var(--text-primary);
-  -webkit-tap-highlight-color: transparent;
-  font-family: "Inter var", "Inter", system-ui, -apple-system, sans-serif;
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-green: var(--green);
+  --color-red: var(--red);
+  --color-amber: var(--amber);
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Remove number input spinners */
+html,
+body {
+  color: var(--foreground);
+  -webkit-tap-highlight-color: transparent;
+  font-family: "Inter", "Inter var", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(59, 130, 246, 0.10), transparent 60%),
+    radial-gradient(900px 480px at -10% 35%, rgba(5, 150, 105, 0.08), transparent 55%),
+    var(--background);
+  background-attachment: fixed;
+}
+
+/* 隐藏数字输入框箭头 */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -60,18 +80,39 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Custom scrollbar for dark theme */
+/* ================================================================
+ * 原子类
+ * ================================================================ */
+
+/* 液态玻璃 —— 仅用于导航 / 浮层 / 底部 TabBar */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* 内容区白卡 */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(31, 41, 55, 0.04);
+}
+
+/* 细滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
-  border-radius: 3px;
+  background: #D5DCE6;
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: #B9C2D0;
 }
