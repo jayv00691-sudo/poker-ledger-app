@@ -1,4 +1,4 @@
-export type RakeMode = 'dealer_shift' | 'box_count' | 'profit_percentage'
+export type RakeMode = 'dealer_shift' | 'box_count'
 export type SessionStatus = 'active' | 'ended'
 export type InsuranceType = 'in' | 'out'
 
@@ -13,7 +13,6 @@ export interface Session {
   id: string
   title: string
   rake_mode: RakeMode
-  rake_rate: number
   box_total_chips: number
   status: SessionStatus
   start_time: string
@@ -73,7 +72,6 @@ export interface PlayerCard {
   member: Member
   totalBuyins: number
   cashoutAmount: number
-  rake: number
   netPnl: number
 }
 
@@ -99,13 +97,11 @@ export interface SessionBundle {
 }
 
 export const RAKE_MODE_LABELS: Record<RakeMode, string> = {
-  dealer_shift: '模式1 · 荷官按小时抽水',
-  box_count: '模式2 · 水箱计数（结束时录入）',
-  profit_percentage: '模式3 · 盈利百分比（离场自动扣）',
+  dealer_shift: '荷官按小时抽水',
+  box_count: '水箱计数（结束时录入）',
 }
 
 export const RAKE_MODE_SHORT: Record<RakeMode, string> = {
   dealer_shift: '荷官抽水',
   box_count: '水箱计数',
-  profit_percentage: '盈利百分比',
 }

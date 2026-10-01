@@ -1,13 +1,13 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { Navbar } from '@/components/Navbar'
+import { TabBar } from '@/components/TabBar'
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <Navbar />
-      <main>{children}</main>
+    <div className="min-h-screen text-slate-900">
+      <main className="px-4 pb-36 pt-6">{children}</main>
+      <TabBar />
     </div>
   )
 }

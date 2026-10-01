@@ -98,9 +98,8 @@ export default function SettlePage() {
   const recon = useMemo(() => {
     if (!stats || !session) return null
     const balanced = Math.abs(stats.unaccountedDelta) < 0.01
-    const modeLabel = RAKE_MODE_LABELS[session.rake_mode].split(' · ')[0]
-    const isM3 = session.rake_mode === 'profit_percentage'
-    return { balanced, modeLabel, isM3 }
+    const modeLabel = RAKE_MODE_LABELS[session.rake_mode]
+    return { balanced, modeLabel }
   }, [stats, session])
 
   if (loading) {
@@ -159,18 +158,14 @@ export default function SettlePage() {
           }
         >
           <p className="mb-3 text-[11px] leading-relaxed text-zinc-500">
-            {recon.isM3
-              ? '总带入 = 总退码（含水费）+ 保险池净额 + 未平差额'
-              : '总带入 = 总退码 + 总水费 + 保险池净额 + 未平差额'}
+            总带入 = 总退码 + 总水费（{recon.modeLabel}）+ 保险池净额 + 未平差额
           </p>
 
           {/* Equation visual */}
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <EquationCell label="总带入" value={mask(fmtMoney(stats.totalBuyins))} tone="text-zinc-100" />
-            <EquationCell label={recon.isM3 ? '总退码（含水费）' : '总退码'} value={mask(fmtMoney(stats.totalCashout))} tone="text-zinc-200" prefix="−" />
-            {!recon.isM3 && (
-              <EquationCell label={`总水费 · ${recon.modeLabel}`} value={mask(fmtMoney(stats.totalRake))} tone="text-amber-400" prefix="−" />
-            )}
+            <EquationCell label="总退码" value={mask(fmtMoney(stats.totalCashout))} tone="text-zinc-200" prefix="−" />
+            <EquationCell label={`总水费 · ${recon.modeLabel}`} value={mask(fmtMoney(stats.totalRake))} tone="text-amber-400" prefix="−" />
             <EquationCell label="保险池净额" value={mask(fmtMoney(stats.insuranceNet))} tone="text-zinc-200" prefix="−" />
           </div>
 
@@ -228,7 +223,6 @@ export default function SettlePage() {
                 key={p.record.id}
                 p={p}
                 sessionId={session.id}
-                isM3={recon?.isM3 ?? false}
                 currency={session.currency}
                 mask={mask}
                 busy={busy}
@@ -379,7 +373,6 @@ function EquationCell({ label, value, prefix, tone }: { label: string; value: st
  * ================================================================ */
 function PlayerRow({
   p,
-  isM3,
   currency,
   mask,
   busy,
@@ -388,7 +381,6 @@ function PlayerRow({
 }: {
   p: PlayerCard
   sessionId: string
-  isM3: boolean
   currency: string
   mask: (v: string) => string
   busy: boolean
@@ -432,9 +424,6 @@ function PlayerRow({
         {settled && (
           <>
             <span>退码 <b className="font-semibold text-zinc-300">{mask(fmtMoney(p.cashoutAmount, currency))}</b></span>
-            {isM3 && p.rake > 0 && (
-              <span>水 <b className="font-semibold text-amber-400">{mask(fmtMoney(p.rake, currency))}</b></span>
-            )}
           </>
         )}
       </div>

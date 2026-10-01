@@ -86,7 +86,6 @@ export async function getActiveSession(): Promise<Session | null> {
 export async function createSession(input: {
   title: string
   rake_mode: RakeMode
-  rake_rate: number
   stakes?: string
   currency?: string
   shareholder?: string
@@ -97,7 +96,6 @@ export async function createSession(input: {
     .insert({
       title: input.title,
       rake_mode: input.rake_mode,
-      rake_rate: input.rake_rate,
       status: 'active',
       stakes: input.stakes || null,
       currency: input.currency || 'CNY',
@@ -301,7 +299,6 @@ function emptyStats(): SessionStats {
 
 export function computeTotalRake(
   session: Session | null,
-  players: { rake: number }[],
   dealerShifts: DealerShift[],
 ): number {
   if (!session) return 0
@@ -310,8 +307,6 @@ export function computeTotalRake(
       return dealerShifts.reduce((s, d) => s + Number(d.rake_chips ?? 0), 0)
     case 'box_count':
       return Number(session.box_total_chips ?? 0)
-    case 'profit_percentage':
-      return players.reduce((s, p) => s + p.rake, 0)
     default:
       return 0
   }
@@ -366,18 +361,12 @@ export async function loadBundle(sessionId: string | null): Promise<SessionBundl
       const member = memberMap.get(record.member_id)!
       const totalBuyins = buyinSum.get(record.id) ?? 0
       const cashoutAmount = Number(record.cashout_amount ?? 0)
-      const profit = Math.max(0, cashoutAmount - totalBuyins)
-      const rake =
-        session.rake_mode === 'profit_percentage' && record.is_settled
-          ? profit * Number(session.rake_rate ?? 0)
-          : 0
       return {
         record,
         member,
         totalBuyins,
         cashoutAmount,
-        rake,
-        netPnl: cashoutAmount - totalBuyins - rake,
+        netPnl: cashoutAmount - totalBuyins,
       }
     })
     .filter((p) => !!p.member)
@@ -387,17 +376,14 @@ export async function loadBundle(sessionId: string | null): Promise<SessionBundl
   const totalCashout = players
     .filter((p) => p.record.is_settled)
     .reduce((s, p) => s + p.cashoutAmount, 0)
-  const totalRake = computeTotalRake(session, players, shiftsRes)
+  const totalRake = computeTotalRake(session, shiftsRes)
   const insuranceIn = insRes.filter((i) => i.type === 'in').reduce((s, i) => s + Number(i.amount), 0)
   const insuranceOut = insRes.filter((i) => i.type === 'out').reduce((s, i) => s + Number(i.amount), 0)
   const insuranceNet = insuranceIn - insuranceOut
   const unsettledCount = players.filter((p) => !p.record.is_settled).length
 
-  // 模式3：cashout_amount 是桌上原始退码筹码数，抽水已内含其中，不重复减
-  const rakeInCashout = session.rake_mode === 'profit_percentage'
-  const unaccountedDelta = rakeInCashout
-    ? totalBuyins - totalCashout - insuranceNet
-    : totalBuyins - totalCashout - totalRake - insuranceNet
+  // 统一对账口径：投入 − 已退 − 抽水 − 保险净额 = 未交代差
+  const unaccountedDelta = totalBuyins - totalCashout - totalRake - insuranceNet
 
   const stats: SessionStats = {
     totalBuyins,
