@@ -24,7 +24,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/80 backdrop-blur-sm sm:items-center"
       onClick={onClose}
     >
       <div
@@ -36,7 +36,7 @@ export function Modal({
           <button
             onClick={onClose}
             aria-label="关闭"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-all hover:bg-zinc-800 hover:text-zinc-100 active:scale-[0.92]"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
@@ -65,12 +65,12 @@ export function Button({
   className?: string
 }) {
   const base =
-    'inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+    'inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97]'
   const variants: Record<string, string> = {
     primary: 'bg-emerald-600 text-white hover:bg-emerald-500',
-    ghost: 'border border-zinc-700 bg-zinc-800/60 text-zinc-200 hover:bg-zinc-800',
+    ghost: 'border border-zinc-700 bg-zinc-800/60 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100',
     danger: 'bg-red-600 text-white hover:bg-red-500',
-    success: 'bg-sky-600 text-white hover:bg-sky-500',
+    success: 'bg-amber-600 text-white hover:bg-amber-500',
   }
   return (
     <button

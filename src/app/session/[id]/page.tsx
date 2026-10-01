@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Buyin, Member, PlayerCard, RakeMode, Session } from '@/lib/types'
-import { RAKE_MODE_LABELS, RAKE_MODE_SHORT } from '@/lib/types'
+import { RAKE_MODE_LABELS } from '@/lib/types'
 import type { SessionBundle } from '@/lib/api'
 import {
   addBuyin,
@@ -20,7 +20,9 @@ import { Badge, Button, Field, Modal, Spinner, inputClass } from '@/components/u
 import { usePrivacy } from '@/components/PrivacyContext'
 
 /* ================================================================
- * Session Detail Page — High-density poker table control
+ * Session Table — High-density poker cockpit
+ * Design: zinc-900/950 base · emerald-600 accent · Phosphor icons
+ * Density: grid-cols-2 → 3 → 5, settled players collapsed @ opacity-60
  * ================================================================ */
 
 export default function SessionDetailPage() {
@@ -71,18 +73,20 @@ export default function SessionDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center gap-3 text-zinc-400">
+      <div className="flex min-h-[60vh] items-center justify-center gap-3 text-zinc-500">
         <Spinner />
-        <span className="text-sm">加载牌局数据…</span>
+        <span className="text-sm">加载中…</span>
       </div>
     )
   }
 
   if (!session) {
     return (
-      <div className="mx-auto max-w-3xl px-3 py-8 text-center">
+      <div className="mx-auto max-w-3xl px-3 py-12 text-center">
         <p className="text-sm text-zinc-500">场次不存在</p>
-        <Link href="/" className="mt-2 inline-block text-sm text-emerald-400 hover:underline">返回看板</Link>
+        <Link href="/" className="mt-3 inline-block text-sm font-medium text-emerald-500 transition-colors hover:text-emerald-400">
+          返回看板
+        </Link>
       </div>
     )
   }
@@ -96,8 +100,10 @@ export default function SessionDetailPage() {
       <div className="mb-3 flex items-center justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Link href="/" className="text-zinc-500 hover:text-zinc-300">←</Link>
-            <h1 className="truncate text-base font-bold text-zinc-100">{session.title}</h1>
+            <Link href="/" className="text-zinc-500 transition-colors hover:text-zinc-300">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M15 18l-6-6 6-6" /></svg>
+            </Link>
+            <h1 className="truncate text-sm font-semibold tracking-tight text-zinc-100">{session.title}</h1>
             <Badge tone={session.status === 'active' ? 'green' : 'neutral'}>
               {session.status === 'active' ? '进行中' : '已结束'}
             </Badge>
@@ -109,19 +115,22 @@ export default function SessionDetailPage() {
           </p>
         </div>
         <Link href={`/session/${session.id}/settle`} className="shrink-0">
-          <Button variant="ghost" className="text-xs">局末结算 →</Button>
+          <Button variant="ghost" className="text-xs">局末结算</Button>
         </Link>
       </div>
 
       {error && (
-        <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-300">{error}</div>
+        <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-400">
+          {error}
+        </div>
       )}
 
       {/* Unified action bar */}
       {session.status === 'active' && (
         <div className="mb-3 flex gap-2">
           <Button onClick={() => setJoinOpen(true)} className="flex-1">
-            <span className="text-base">+</span> 新玩家入场
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 5v14M5 12h14" /></svg>
+            新玩家入场
           </Button>
           <div className="relative flex-1">
             <Button
@@ -130,9 +139,10 @@ export default function SessionDetailPage() {
               className="w-full"
               disabled={activePlayers.length === 0}
             >
-              <span className="text-base">+</span> 极速加码 ▾
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 5v14M5 12h14" /></svg>
+              极速加码
+              <svg viewBox="0 0 24 24" className="h-3 w-3 opacity-60" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M6 9l6 6 6-6" /></svg>
             </Button>
-            {/* Dropdown menu — only active players */}
             {buyinOpen && activePlayers.length > 0 && (
               <BuyinDropdown
                 players={activePlayers}
@@ -144,7 +154,7 @@ export default function SessionDetailPage() {
         </div>
       )}
 
-      {/* High-density player grid: active players */}
+      {/* Active players — high-density grid */}
       {activePlayers.length > 0 && (
         <div className="mb-3">
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
@@ -163,13 +173,14 @@ export default function SessionDetailPage() {
         </div>
       )}
 
-      {/* Settled players — collapsed at bottom with reduced opacity */}
+      {/* Settled players — collapsed, reduced opacity */}
       {settledPlayers.length > 0 && (
-        <details className="group" open={false}>
-          <summary className="mb-2 cursor-pointer text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-300">
-            已结算玩家 ({settledPlayers.length}) ▸
+        <details className="group">
+          <summary className="mb-2 flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-zinc-500 transition-colors hover:text-zinc-300">
+            <svg viewBox="0 0 24 24" className="h-3 w-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M9 6l6 6-6 6" /></svg>
+            已结算 ({settledPlayers.length})
           </summary>
-          <div className="grid grid-cols-2 gap-2 opacity-60 md:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-2 opacity-60 transition-opacity md:grid-cols-3 lg:grid-cols-5">
             {settledPlayers.map((p) => (
               <PlayerSeat
                 key={p.record.id}
@@ -186,13 +197,12 @@ export default function SessionDetailPage() {
       )}
 
       {players.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 px-4 py-10 text-center">
+        <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 px-4 py-10 text-center">
           <p className="text-sm text-zinc-500">还没有玩家入座</p>
-          <p className="mt-1 text-xs text-zinc-600">点击「+ 新玩家入场」开始</p>
+          <p className="mt-1 text-[11px] text-zinc-600">点击「新玩家入场」开始记分</p>
         </div>
       )}
 
-      {/* Join modal — smart Combobox */}
       {joinOpen && (
         <JoinComboboxModal
           sessionId={session.id}
@@ -202,7 +212,10 @@ export default function SessionDetailPage() {
         />
       )}
 
-      {/* Settle modal */}
+      {buyinOpen && (
+        <div className="fixed inset-0 z-20" onClick={() => setBuyinOpen(false)} />
+      )}
+
       {settleOpen && selectedPlayer && (
         <SettleModal
           player={selectedPlayer}
@@ -216,7 +229,7 @@ export default function SessionDetailPage() {
 }
 
 /* ================================================================
- * Player Seat — compact card in high-density grid
+ * Player Seat — compact, high-density
  * ================================================================ */
 
 function PlayerSeat({
@@ -240,15 +253,13 @@ function PlayerSeat({
         ? 'border-zinc-800/60 bg-zinc-900/30'
         : 'border-zinc-800 bg-zinc-900/70 hover:border-zinc-700'
     }`}>
-      {/* Name + status */}
       <div className="flex items-center justify-between gap-1">
-        <span className="truncate text-[12px] font-semibold text-zinc-100">{player.member.name}</span>
-        <span className={`h-2 w-2 shrink-0 rounded-full ${settled ? 'bg-zinc-600' : 'bg-emerald-500'}`} />
+        <span className="truncate text-[12px] font-medium text-zinc-100">{player.member.name}</span>
+        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${settled ? 'bg-zinc-600' : 'bg-emerald-500'}`} />
       </div>
 
-      {/* Net PnL */}
-      <div className="mt-1">
-        <span className={`text-[14px] font-bold tabular-nums ${
+      <div className="mt-1.5">
+        <span className={`text-[14px] font-semibold tabular-nums ${
           !settled ? 'text-zinc-500' :
           player.netPnl > 0 ? 'text-emerald-400' :
           player.netPnl < 0 ? 'text-red-400' : 'text-zinc-400'
@@ -257,20 +268,18 @@ function PlayerSeat({
         </span>
       </div>
 
-      {/* Buyin / Cashout */}
       <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
         <span>入 {mask(fmtMoney(player.totalBuyins))}</span>
         {settled && <span>退 {mask(fmtMoney(player.cashoutAmount))}</span>}
       </div>
 
-      {/* Action */}
       {!settled && session.status === 'active' && (
         <button
           onClick={onSettle}
           disabled={disabled}
-          className="mt-1.5 w-full cursor-pointer rounded-lg border border-zinc-700 bg-zinc-800/60 py-1 text-[10px] font-medium text-zinc-300 transition-colors hover:border-emerald-600/50 hover:bg-emerald-600/10 hover:text-emerald-400 disabled:opacity-50"
+          className="mt-1.5 w-full cursor-pointer rounded-lg border border-zinc-700/60 bg-zinc-800/50 py-1 text-[10px] font-medium text-zinc-400 transition-all hover:border-emerald-600/40 hover:bg-emerald-600/10 hover:text-emerald-400 active:scale-[0.97] disabled:opacity-40"
         >
-          离场结算
+          离场
         </button>
       )}
     </div>
@@ -278,7 +287,7 @@ function PlayerSeat({
 }
 
 /* ================================================================
- * Quick Buyin Dropdown — select from active players only
+ * Buyin Dropdown — active players only
  * ================================================================ */
 
 function BuyinDropdown({
@@ -297,7 +306,6 @@ function BuyinDropdown({
 
   const QUICK_AMOUNTS = [500, 1000, 2000]
 
-  // Close on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
@@ -321,34 +329,33 @@ function BuyinDropdown({
   return (
     <div
       ref={ref}
-      className="absolute left-0 right-0 top-full z-30 mt-1 rounded-xl border border-zinc-700 bg-zinc-900 p-3 shadow-xl"
+      className="absolute left-0 right-0 top-full z-30 mt-1 rounded-xl border border-zinc-700 bg-zinc-900 p-2.5 shadow-xl"
     >
-      {/* Player list */}
-      <div className="mb-2 max-h-32 space-y-1 overflow-y-auto">
+      <div className="mb-2 max-h-28 space-y-0.5 overflow-y-auto">
         {players.map((p) => (
           <button
             key={p.record.id}
             onClick={() => setSelectedId(p.record.id)}
-            className={`flex w-full cursor-pointer items-center justify-between rounded-lg border px-2.5 py-1.5 text-left text-[12px] transition-colors ${
+            className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12px] transition-colors ${
               selectedId === p.record.id
-                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300'
-                : 'border-zinc-800 bg-zinc-950 text-zinc-300 hover:bg-zinc-800'
+                ? 'bg-emerald-600/15 text-emerald-300'
+                : 'text-zinc-300 hover:bg-zinc-800'
             }`}
           >
             <span className="font-medium">{p.member.name}</span>
-            <span className="text-[10px] text-zinc-500">已入 {fmtMoney(p.totalBuyins)}</span>
+            <span className="text-[10px] text-zinc-500">{fmtMoney(p.totalBuyins)}</span>
           </button>
         ))}
       </div>
 
       {selectedId && (
-        <div className="flex gap-1.5">
+        <div className="flex gap-1">
           {QUICK_AMOUNTS.map((a) => (
             <button
               key={a}
               onClick={() => handleBuyin(a)}
               disabled={busy}
-              className="flex-1 cursor-pointer rounded-lg bg-emerald-600 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+              className="flex-1 cursor-pointer rounded-lg bg-emerald-600 py-2 text-[12px] font-semibold text-white transition-all hover:bg-emerald-500 active:scale-[0.97] disabled:opacity-50"
             >
               +{a}
             </button>
@@ -357,7 +364,7 @@ function BuyinDropdown({
       )}
 
       {selectedId && (
-        <div className="mt-2 flex gap-2">
+        <div className="mt-1.5 flex gap-1.5">
           <input
             type="number"
             inputMode="decimal"
@@ -376,7 +383,7 @@ function BuyinDropdown({
 }
 
 /* ================================================================
- * Join Combobox Modal — single input, autocomplete + create
+ * Join Combobox — single input, autocomplete + inline create
  * ================================================================ */
 
 function JoinComboboxModal({
@@ -400,7 +407,6 @@ function JoinComboboxModal({
 
   const QUICK_AMOUNTS = [500, 1000, 2000]
 
-  // Search members on query change
   useEffect(() => {
     let cancelled = false
     async function search() {
@@ -412,7 +418,6 @@ function JoinComboboxModal({
     return () => { cancelled = true }
   }, [query])
 
-  // Reset highlight when results change
   useEffect(() => { setHighlightIndex(-1) }, [members.length])
 
   const isNewPlayer = query.trim().length > 0 && !members.some(
@@ -430,8 +435,11 @@ function JoinComboboxModal({
       e.preventDefault()
       if (highlightIndex >= 0 && highlightIndex < members.length) {
         setSelectedMember(members[highlightIndex])
+        setQuery(members[highlightIndex].name)
       } else if (isNewPlayer) {
         handleCreateAndJoin()
+      } else if (selectedMember) {
+        handleJoin()
       }
     }
   }
@@ -468,8 +476,8 @@ function JoinComboboxModal({
   return (
     <Modal open={true} onClose={onClose} title="新玩家入场">
       <div className="space-y-4">
-        {/* Smart Combobox — player name */}
-        <Field label="玩家姓名 / 绰号">
+        {/* Smart combobox — name input */}
+        <Field label="玩家姓名">
           <div className="relative">
             <input
               ref={inputRef}
@@ -479,11 +487,10 @@ function JoinComboboxModal({
                 setSelectedMember(null)
               }}
               onKeyDown={handleKeyDown}
-              placeholder="输入名字搜索，或输入新名字直接创建…"
+              placeholder="输入名字搜索，新名字直接创建…"
               className={inputClass}
               autoFocus
             />
-            {/* Dropdown suggestions */}
             {query.trim() && (
               <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-32 overflow-y-auto rounded-xl border border-zinc-700 bg-zinc-900 shadow-xl">
                 {isNewPlayer && (
@@ -491,8 +498,8 @@ function JoinComboboxModal({
                     onClick={handleCreateAndJoin}
                     className="flex w-full cursor-pointer items-center gap-2 border-b border-zinc-800 px-3 py-2 text-left text-[12px] text-emerald-400 transition-colors hover:bg-zinc-800"
                   >
-                    <span className="text-emerald-500">+</span>
-                    <span>新增玩家 &quot;{query.trim()}&quot;</span>
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M12 5v14M5 12h14" /></svg>
+                    <span>新增 &quot;{query.trim()}&quot;</span>
                   </button>
                 )}
                 {members
@@ -508,14 +515,17 @@ function JoinComboboxModal({
                       }`}
                     >
                       <span>{m.name}</span>
-                      <span className="text-[10px] text-zinc-500">已有会员</span>
+                      <span className="text-[10px] text-zinc-500">已有</span>
                     </button>
                   ))}
               </div>
             )}
           </div>
           {selectedMember && (
-            <p className="mt-1 text-[11px] text-emerald-400">✓ 已选择：{selectedMember.name}</p>
+            <p className="mt-1.5 text-[11px] text-emerald-400">
+              <svg viewBox="0 0 24 24" className="mr-1 inline h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
+              已选：{selectedMember.name}
+            </p>
           )}
         </Field>
 
@@ -534,9 +544,9 @@ function JoinComboboxModal({
               <button
                 key={a}
                 onClick={() => setBuyinAmount(String(a))}
-                className={`flex-1 cursor-pointer rounded-lg border py-2 text-xs font-semibold transition-colors ${
+                className={`flex-1 cursor-pointer rounded-lg border py-2 text-xs font-medium transition-all active:scale-[0.97] ${
                   Number(buyinAmount) === a
-                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
                     : 'border-zinc-700 text-zinc-400 hover:bg-zinc-800'
                 }`}
               >
@@ -562,7 +572,7 @@ function JoinComboboxModal({
 }
 
 /* ================================================================
- * Settle Modal — player cashout
+ * Settle Modal
  * ================================================================ */
 
 function SettleModal({
@@ -605,8 +615,8 @@ function SettleModal({
     <Modal open={true} onClose={onClose} title="玩家离场结算">
       <div className="space-y-4">
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3">
-          <div className="text-sm font-semibold text-zinc-100">{player.member.name}</div>
-          <div className="mt-1 text-[11px] text-zinc-500">总带入 {mask(fmtMoney(player.totalBuyins))}</div>
+          <div className="text-sm font-medium text-zinc-100">{player.member.name}</div>
+          <div className="mt-0.5 text-[11px] text-zinc-500">总带入 {mask(fmtMoney(player.totalBuyins))}</div>
         </div>
 
         <Field label="退码金额（桌上筹码数）">
@@ -633,7 +643,7 @@ function SettleModal({
             </div>
             <div className="flex justify-between border-t border-zinc-800 pt-1">
               <span className="font-medium text-zinc-300">净盈亏</span>
-              <span className={`font-bold tabular-nums ${preview.net > 0 ? 'text-emerald-400' : preview.net < 0 ? 'text-red-400' : 'text-zinc-300'}`}>
+              <span className={`font-semibold tabular-nums ${preview.net > 0 ? 'text-emerald-400' : preview.net < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
                 {mask(fmtSigned(preview.net))}
               </span>
             </div>
